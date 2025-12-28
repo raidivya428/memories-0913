@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>For You ❤️</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Georgia', serif;
+}
+
+/* ---------- COMMON ---------- */
+.screen {
+  position: absolute;
+  inset: 0;
+  display: none;
+}
+.screen.show {
+  display: block;
+}
+
+/* ---------- PAGE 1 ---------- */
+#page1 {
+  background: radial-gradient(circle at bottom, #1a1a2e, #000);
+}
+
+#birthdayText {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 3.8rem;
+  color: white;
+  text-align: center;
+  z-index: 5;
+  text-shadow: 0 0 30px rgba(255,180,220,1);
+}
+#birthdayText span {
+  display: block;
+  font-size: 3.2rem;
+  color: #ff9aa2;
+}
+
+canvas {
+  position: absolute;
+  inset: 0;
+}
+
+/* ---------- PAGE 2 ---------- */
+#page2 { overflow-y: auto; }
+
+.bg-layer {
+  position: fixed;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: brightness(70%);
+  transition: opacity 1.8s ease-in-out;
+  opacity: 0;
+  z-index: 0;
+}
+.bg-layer.active {
+  opacity: 1;
+}
+
+#page2::before {
+  content:"";
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.75),
+    rgba(0,0,0,0.55),
+    rgba(0,0,0,0.75)
+  );
+  z-index: 1;
+}
+
+#letterWrapper {
+  position: relative;
+  z-index: 2;
+  display: block;        /* REMOVE FLEX CENTERING */
+}
+
+#letterBox {
+  margin: 60px auto 120px auto;
+  max-width: 900px;
+  width: 92%;
+  padding: 20px 10px;
+
+  font-family: 'Dancing Script', cursive;
+  font-weight: 400;              /* lighter */
+  font-size: 21px;               /* slightly smaller */
+  line-height: 1.85;             /* easier on eyes */
+  letter-spacing: 0.4px;
+
+  color: #f8f8f8;
+  text-align: left;
+
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.8);
+}
+
+/* ---------- PAGE 3 ---------- */
+#page3 {
+  background: radial-gradient(circle at center, #3a0f2e, #12000a);
+}
+
+#loveText {
+  position: absolute;
+  top: 18%;
+  width: 100%;
+  text-align: center;
+
+  font-family: 'Dancing Script', cursive;
+  font-weight: 500;
+  font-size: 3.4rem;
+
+  color: #fff;
+  z-index: 5;
+
+  text-shadow:
+    0 0 20px rgba(255, 80, 140, 0.9),
+    0 0 40px rgba(255, 80, 140, 0.6);
+}
+</style>
+</head>
+
+<body>
+
+<!-- PAGE 1 -->
+<div id="page1" class="screen show">
+  <div id="birthdayText">
+    Happiest Birthday
+    <span>My Cupcake ❤️</span>
+  </div>
+  <canvas id="fireworks"></canvas>
+</div>
+
+<!-- PAGE 2 -->
+<div id="page2" class="screen">
+  <div id="bg1" class="bg-layer"></div>
+  <div id="bg2" class="bg-layer"></div>
+
+  <div id="letterWrapper">
+    <div id="letterBox">
+      <p id="typeText"></p>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 3 -->
+<div id="page3" class="screen">
+  <div id="loveText">I love you so so much Honey</div>
+  <canvas id="loveCanvas"></canvas>
+</div>
+
+<script>
+/* ---------- PAGE 1 FIREWORKS (BRIGHT) ---------- */
+const fwCanvas = document.getElementById("fireworks");
+const fwCtx = fwCanvas.getContext("2d");
+fwCanvas.width = innerWidth;
+fwCanvas.height = innerHeight;
+
+class Firework {
+  constructor(x,y){
+    this.p=[];
+    for(let i=0;i<100;i++){
+      this.p.push({
+        x,y,
+        a:Math.random()*Math.PI*2,
+        s:Math.random()*7+2,
+        l:1
+      });
+    }
+  }
+  draw(){
+    this.p.forEach(o=>{
+      o.x+=Math.cos(o.a)*o.s;
+      o.y+=Math.sin(o.a)*o.s;
+      o.l-=0.015;
+      fwCtx.fillStyle=`rgba(${220+Math.random()*35},${80+Math.random()*100},${160+Math.random()*95},${o.l})`;
+      fwCtx.fillRect(o.x,o.y,3,3);
+    });
+  }
+}
+
+let fireworks=[];
+setInterval(()=>fireworks.push(new Firework(Math.random()*innerWidth,Math.random()*innerHeight*0.6)),500);
+
+(function animateFW(){
+  fwCtx.fillStyle="rgba(0,0,0,0.2)";
+  fwCtx.fillRect(0,0,fwCanvas.width,fwCanvas.height);
+  fireworks=fireworks.filter(f=>f.p[0].l>0);
+  fireworks.forEach(f=>f.draw());
+  requestAnimationFrame(animateFW);
+})();
+
+/* ---------- PAGE FLOW ---------- */
+setTimeout(()=>{
+  page1.classList.remove("show");
+  page2.classList.add("show");
+  typeLetter();
+},5000);
+
+/* ---------- LETTER ---------- */
+const letter=`My Sweetheart,
+
+I don’t think I’ll ever find the right words for you, and maybe that’s okay, so I’ll just say what’s true. You are my everything. Not in a dramatic way, not in a fairytale way — but in the real, everyday way that matters the most. Some feelings are too big to be contained perfectly, and you are one of them. Still, today I want to try — because you deserve to know what you mean to me, in my own simple way.
+
+You take care of me like I’m your little baby, and I don’t say that lightly. You notice me. You see me. You bring me food, you cook for me, and somehow you make it feel like love instead of responsibility and you do it so naturally that it feels like love wrapped into the simplest moments. When you hold me in your arms and I fall asleep like a child, In those moments, everything feels right, All my worries, all my fears, all the noise inside me goes quiet. I feel protected, safe, and deeply at peace. In your arms, I don’t have to be strong. I don’t have to think. I can just rest — and that feeling is priceless to me.
+
+You protect me without making me feel small. You guide me without ever making me feel lost. You help me understand life, decisions, the world around me — patiently, calmly, You explain the world to me — from everyday decisions to things far bigger than me. You never judge me for not knowing something. Instead, you teach me. You explain things with care, and you make me feel confident instead of embarrassed. Because of you, I feel safer facing the world. You are my calm. When everything feels loud, confusing, or heavy, you make it quiet again. Just being with you slows my thoughts, softens my worries, and makes me feel safe. With you, my mind finally rests.
+
+What I love most is how you feel like home. Not just a place, but a feeling. The kind of place where I can be quiet without it being awkward, emotional without being judged, and soft without needing to pretend I’m strong all the time. With you, I can just exist - And that is the most beautiful thing.
+
+I love the way you look at me. I love catching your small smiles, your quiet glances, the way your eyes softens when we are together at home, I love how I feel when you say my name. It makes something inside me melt every single time. I love your presence, your warmth, the way your voice settles something deep inside me. Even your silence feels comforting. Especially your silence.
+
+You are my safe place after a long day. My comfort when I feel overwhelmed. My calm when my mind won’t stop racing. You make me laugh when I don’t feel like smiling, and you sit with me quietly when words aren’t enough. Loving you doesn’t feel chaotic or confusing — it feels steady, reassuring, and real. It feels warm. It feels right. Sometimes I think about how lucky I am that life chose you for me. You are not just someone I love — you are someone I trust with my heart, my softness, my fears, and my future.
+
+On your birthday, I want you to know this: the world is better because you exist, and my life is better because you are in it. Thank you for loving me, protecting me, caring for me, and making me feel safe in ways I never want to live without. I love you more than words will ever fully capture.
+Always. ❤️
+`;
+
+let i=0;
+function typeLetter(){
+  if(i<letter.length){
+    typeText.innerHTML+=letter[i++];
+    setTimeout(typeLetter,60);
+  } else {
+    setTimeout(showLove,1200);
+  }
+}
+
+/* ---------- BACKGROUND PHOTO CROSSFADE ---------- */
+const images = [
+  "photos/p1.jpeg",
+  "photos/p2.jpeg",
+  "photos/p3.jpeg",
+  "photos/p4.jpeg",
+  "photos/p5.jpeg",
+  "photos/p6.jpeg",
+  "photos/p7.jpeg"
+];
+
+let index = 0;
+let topLayer = true;
+
+const bg1 = document.getElementById("bg1");
+const bg2 = document.getElementById("bg2");
+
+bg1.style.backgroundImage = `url(${images[0]})`;
+bg1.classList.add("active");
+
+setInterval(() => {
+  const img = images[index % images.length];
+  if (topLayer) {
+    bg2.style.backgroundImage = `url(${img})`;
+    bg2.classList.add("active");
+    bg1.classList.remove("active");
+  } else {
+    bg1.style.backgroundImage = `url(${img})`;
+    bg1.classList.add("active");
+    bg2.classList.remove("active");
+  }
+  topLayer = !topLayer;
+  index++;
+}, 2000);
+
+/* ---------- PAGE 3 HEART + PETALS ---------- */
+const lc=document.getElementById("loveCanvas");
+const ctx=lc.getContext("2d");
+lc.width=innerWidth;
+lc.height=innerHeight;
+
+function drawHeart(scale,alpha,glow){
+  ctx.save();
+  ctx.translate(lc.width/2,lc.height/2+40);
+  ctx.scale(scale,scale);
+  ctx.beginPath();
+  for(let a=0;a<Math.PI*2;a+=0.02){
+    const x=16*Math.pow(Math.sin(a),3);
+    const y=-(13*Math.cos(a)-5*Math.cos(2*a)-2*Math.cos(3*a)-Math.cos(4*a));
+    ctx.lineTo(x,y);
+  }
+  ctx.strokeStyle=`rgba(255,40,120,${alpha})`;
+  ctx.lineWidth=0.65;
+  ctx.shadowColor="#ff0055";
+  ctx.shadowBlur=glow*1.4;
+  ctx.stroke();
+  ctx.restore();
+}
+
+let petals=[];
+function createPetal(){
+  petals.push({
+    x:Math.random()*lc.width,
+    y:-30,
+    s:Math.random()*1.5+0.5,
+    r:Math.random()*Math.PI,
+    rot:Math.random()*Math.PI
+  });
+}
+
+function drawPetal(p){
+  ctx.save();
+  ctx.translate(p.x,p.y);
+  ctx.rotate(p.rot);
+  ctx.fillStyle="rgba(255,110,160,0.9)";
+  ctx.beginPath();
+  ctx.moveTo(0,0);
+  ctx.bezierCurveTo(-6,-4,-4,8,0,12);
+  ctx.bezierCurveTo(4,8,6,-4,0,0);
+  ctx.fill();
+  ctx.restore();
+}
+
+function animateLove(t){
+  ctx.clearRect(0,0,lc.width,lc.height);
+
+  // layered heart (reel style)
+  drawHeart(15,0.18,14);
+  drawHeart(13,0.45,26);
+  drawHeart(11,1,40);
+
+  petals.forEach(p=>{
+    p.y+=p.s*2;
+    p.x+=Math.sin(p.r)*0.8;
+    p.rot+=0.01;
+    drawPetal(p);
+  });
+
+  petals=petals.filter(p=>p.y<lc.height+40);
+  requestAnimationFrame(animateLove);
+}
+
+setInterval(createPetal,150);
+
+function showLove(){
+  page2.classList.remove("show");
+  page3.classList.add("show");
+  animateLove(0);
+}
+</script>
+
+</body>
+</html>
